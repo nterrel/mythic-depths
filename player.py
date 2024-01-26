@@ -1,13 +1,25 @@
-class Character:
-    def __init__(self, name, health, strength):
+import pygame
+import inventory
+
+class Player:
+    def __init__(self, x, y, name, health, strength):
+        self.x = x
+        self.y = y
+        self.speed = 5
         self.name = name
         self.health = health
         self.strength = strength
 
+    def draw(self, screen):
+        pygame.draw.rect(screen, (0, 128, 255), pygame.Rect(self.x, self.y, 60, 60))
 
-player = Character("Hero", 100, 10)
-enemy = Character("Goblin", 50, 5)
+    def move(self, dx, dy):
+        self.x += dx * self.speed
+        self.y += dy * self.speed
 
+player = Player(1, 1, "Hero", 100, 10)
+#enemy = Player("Goblin", 50, 5)
+'''
 while True:
     action = input("Do you want to attack the goblin? (yes/no): ")
     if action.lower() == "yes":
@@ -25,4 +37,7 @@ while True:
             break
     else:
         print("Invalid action.")
+'''
+
+# EOF
 
