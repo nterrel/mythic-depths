@@ -4,6 +4,7 @@ class Character:
         self.health = health
         self.strength = strength
 
+
 player = Character("Hero", 100, 10)
 enemy = Character("Goblin", 50, 5)
 

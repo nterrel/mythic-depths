@@ -12,3 +12,5 @@ Things to add:
     * Stats:
         - Magic to start, but eventually a rs-like combat triangle?
         - 
+
+Clearly need to learn more about writing with markdown -- part of what I want to get out of this project.
