@@ -1,4 +1,9 @@
 import pygame
+from player import Player
+from inventory import Inventory
+from dungeon import Dungeon
+
+TILE_SIZE = 20
 
 pygame.init()
 screen_width, screen_height = 800, 600
@@ -7,6 +12,9 @@ pygame.display.set_caption("Mythic Depths")
 
 player = Player(screen_width // 2, screen_height // 2)
 
+dungeon = Dungeon(screen_width // TILE_SIZE, screen_height // TILE_SIZE, TILE_SIZE)
+dungeon.connect_rooms()
+
 running = True
 while running:
     for event in pygame.event.get():
@@ -14,7 +22,7 @@ while running:
             running = False
 
     pygame.display.update()
-    
+
     keys = pygame.key.get_pressed()
     dx, dy = 0, 0
     if keys[pygame.K_a]:
@@ -22,14 +30,17 @@ while running:
     if keys[pygame.K_d]:
         dx = 1
     if keys[pygame.K_w]:
-        dy = 1
-    if keys[pygame.K_s]:
         dy = -1
-
-    player.move(dx, dy)
+    if keys[pygame.K_s]:
+        dy = 1
 
     screen.fill((0, 0, 0))  # Clear screen
+
+    dungeon.draw(screen)
+
+    player.move(dx, dy, dungeon)
     player.draw(screen)
 
-pygame.quit()
+    pygame.display.update()
 
+pygame.quit()

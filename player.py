@@ -1,24 +1,38 @@
 import pygame
-import inventory
+from inventory import Inventory
+
 
 class Player:
-    def __init__(self, x, y, name, health, strength):
+    def __init__(self, x, y,
+                 name: str = 'Fella',
+                 health: int = 100,
+                 strength: int = 10):
         self.x = x
         self.y = y
         self.speed = 5
         self.name = name
         self.health = health
         self.strength = strength
+        self.inventory = Inventory()
 
     def draw(self, screen):
         pygame.draw.rect(screen, (0, 128, 255), pygame.Rect(self.x, self.y, 60, 60))
 
     def move(self, dx, dy):
-        self.x += dx * self.speed
-        self.y += dy * self.speed
+        new_x = self.x + dx * self.speed
+        new_y = self.y + dy * self.speed
+
+        # Check if the new position is within a walkable area in the dungeon
+        if dungeon.grid[new_y // TILE_SIZE][new_x // TILE_SIZE] == 1:
+            self.x = new_x
+            self.y = new_y
+
+    def add_item_to_inventory(self, item):
+        self.inventory.add_item(item)
 
 player = Player(1, 1, "Hero", 100, 10)
-#enemy = Player("Goblin", 50, 5)
+# enemy = Player("Goblin", 50, 5)
+
 '''
 while True:
     action = input("Do you want to attack the goblin? (yes/no): ")
