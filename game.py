@@ -2,15 +2,15 @@ import pygame
 from player import Player
 from inventory import Inventory
 from dungeon import Dungeon
+from config import TILE_SIZE
 
-TILE_SIZE = 20
 
 pygame.init()
 screen_width, screen_height = 800, 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Mythic Depths")
 
-player = Player(screen_width // 2, screen_height // 2)
+player = Player(screen_width // 2, screen_height // 2, tile_size=TILE_SIZE)
 
 dungeon = Dungeon(screen_width // TILE_SIZE, screen_height // TILE_SIZE, TILE_SIZE)
 dungeon.connect_rooms()

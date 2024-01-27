@@ -6,24 +6,26 @@ class Player:
     def __init__(self, x, y,
                  name: str = 'Fella',
                  health: int = 100,
-                 strength: int = 10):
+                 strength: int = 10,
+                 tile_size: int = 20):
         self.x = x
         self.y = y
         self.speed = 5
         self.name = name
         self.health = health
         self.strength = strength
+        self.tile_size = tile_size
         self.inventory = Inventory()
 
     def draw(self, screen):
         pygame.draw.rect(screen, (0, 128, 255), pygame.Rect(self.x, self.y, 60, 60))
 
-    def move(self, dx, dy):
+    def move(self, dx, dy, dungeon):
         new_x = self.x + dx * self.speed
         new_y = self.y + dy * self.speed
 
         # Check if the new position is within a walkable area in the dungeon
-        if dungeon.grid[new_y // TILE_SIZE][new_x // TILE_SIZE] == 1:
+        if dungeon.grid[new_y // self.tile_size][new_x // self.tile_size] == 1:
             self.x = new_x
             self.y = new_y
 

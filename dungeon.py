@@ -1,11 +1,11 @@
 import pygame
 import random
-
+from config import TILE_SIZE
 
 class Room:
     def __init__(self, x, y, width, height, tile_size):
-        self.x, self.y = x, y
-        self.width, self.height = width, height
+        self.x, self.y = x * tile_size, y * tile_size
+        self.width, self.height = width * tile_size, height * tile_size
 
 
 class Dungeon:
@@ -14,14 +14,14 @@ class Dungeon:
         self.height = height
         self.grid = [[0 for _ in range(width)] for _ in range(height)]
         self.rooms = []
-        self.tile_size = tile_size
+        self.tile_size = TILE_SIZE
         self.start_room = None
         self.end_room = None
 
     def add_room(self, room):
         self.rooms.append(room)
-        for x in range(room.x, room.x + room.width):
-            for y in range(room.y, room.y + room.height):
+        for x in range(room.x // self.tile_size, (room.x + room.width) // self.tile_size):
+            for y in range(room.y // self.tile_size, (room.y + room.height) // self.tile_size):
                 self.grid[y][x] = 1     # Mark room area on grid
         if not self.start_room:
             self.start_room = room  # This makes the first room added the start
@@ -30,11 +30,16 @@ class Dungeon:
     def connect_rooms(self):
         for i in range(len(self.rooms) - 1):
             room_a, room_b = self.rooms[i], self.rooms[i + 1]
-            # Connect rooms at the center
-            for x in range(min(room_a.x, room_b.x), max(room_a.x, room_b.x) + 1):
-                self.grid[room_a.y][x] = 1
-            for y in range(min(room_a.y, room_b.y), max(room_a.y, room_b.y) + 1):
-                self.grid[y][room_b.x] = 1
+            
+            # Connect rooms horizontally
+            for x in range(min(room_a.x, room_b.x) // self.tile_size, (max(room_a.x, room_b.x) + self.tile_size) // self.tile_size):
+                if x < self.width:  # Check to prevent 'IndexError'
+                    self.grid[room_a.y // self.tile_size][x] = 1
+
+            # Connect rooms vertically
+            for y in range(min(room_a.y, room_b.y) // self.tile_size, (max(room_a.y, room_b.y) + self.tile_size) // self.tile_size):
+                if y < self.height:  # Check to prevent 'IndexError'
+                    self.grid[y][room_b.x // self.tile_size] = 1
 
     def print_dungeon(self):
         for y, row in enumerate(self.grid):
@@ -60,12 +65,12 @@ class Dungeon:
 
 if __name__ == "__main__":
     # Initialize a dungeon
-    dungeon = Dungeon(30, 20)
+    dungeon = Dungeon(30, 20, 20)
     # Create 5 rooms at random
     for _ in range(5):
         w, h = random.randint(3, 6), random.randint(3, 6)
-        x, y = random.randint(0, dungeon.width - w), random.randint(0, dungeon.height - h)
-        dungeon.add_room(Room(x, y, w, h))
+        x, y = random.randint(0, dungeon.width - w - 1), random.randint(0, dungeon.height - h - 1)
+        dungeon.add_room(Room(x, y, w, h, 20))
 
     dungeon.connect_rooms()
     dungeon.print_dungeon()
