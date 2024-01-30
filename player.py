@@ -18,7 +18,8 @@ class Player:
         self.inventory = Inventory()
 
     def draw(self, screen):
-        pygame.draw.rect(screen, (0, 128, 255), pygame.Rect(self.x, self.y, 60, 60))
+        pygame.draw.rect(screen, (0, 128, 255),
+                         pygame.Rect(self.x, self.y, 60, 60))
 
     def move(self, dx, dy, dungeon):
         new_x = self.x + dx * self.speed
@@ -31,6 +32,7 @@ class Player:
 
     def add_item_to_inventory(self, item):
         self.inventory.add_item(item)
+
 
 player = Player(1, 1, "Hero", 100, 10)
 # enemy = Player("Goblin", 50, 5)
@@ -56,4 +58,3 @@ while True:
 '''
 
 # EOF
-

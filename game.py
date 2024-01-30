@@ -12,7 +12,8 @@ pygame.display.set_caption("Mythic Depths")
 
 player = Player(screen_width // 2, screen_height // 2, tile_size=TILE_SIZE)
 
-dungeon = Dungeon(screen_width // TILE_SIZE, screen_height // TILE_SIZE, TILE_SIZE)
+dungeon = Dungeon(screen_width // TILE_SIZE,
+                  screen_height // TILE_SIZE, TILE_SIZE)
 dungeon.connect_rooms()
 
 running = True

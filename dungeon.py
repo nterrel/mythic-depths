@@ -2,6 +2,7 @@ import pygame
 import random
 from config import TILE_SIZE
 
+
 class Room:
     def __init__(self, x, y, width, height, tile_size):
         self.x, self.y = x * tile_size, y * tile_size
@@ -30,7 +31,7 @@ class Dungeon:
     def connect_rooms(self):
         for i in range(len(self.rooms) - 1):
             room_a, room_b = self.rooms[i], self.rooms[i + 1]
-            
+
             # Connect rooms horizontally
             for x in range(min(room_a.x, room_b.x) // self.tile_size, (max(room_a.x, room_b.x) + self.tile_size) // self.tile_size):
                 if x < self.width:  # Check to prevent 'IndexError'
@@ -61,15 +62,16 @@ class Dungeon:
                                                             self.tile_size,
                                                             self.tile_size))
 
-# How to use:
 
+# How to use:
 if __name__ == "__main__":
     # Initialize a dungeon
     dungeon = Dungeon(30, 20, 20)
     # Create 5 rooms at random
     for _ in range(5):
         w, h = random.randint(3, 6), random.randint(3, 6)
-        x, y = random.randint(0, dungeon.width - w - 1), random.randint(0, dungeon.height - h - 1)
+        x, y = random.randint(0, dungeon.width - w -
+                              1), random.randint(0, dungeon.height - h - 1)
         dungeon.add_room(Room(x, y, w, h, 20))
 
     dungeon.connect_rooms()
