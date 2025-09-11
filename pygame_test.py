@@ -15,6 +15,10 @@ pygame.display.set_caption("Mythic Depths")
 # Static dungeon system
 WORLD_WIDTH, WORLD_HEIGHT = 40, 30
 
+# Track dungeon history and visited rooms for mapping
+history = []  # Stack of (dungeon, doors, player_x, player_y)
+visited_rooms = []  # List of dicts: {size, shape, position}
+
 
 def generate_dungeon():
     dungeon = Dungeon(WORLD_WIDTH, WORLD_HEIGHT, TILE_SIZE)
@@ -110,31 +114,45 @@ def draw_doors(screen, doors, camera_x, camera_y):
 
 
 def interact_nearby_doors(player, doors):
-    global dungeon
+    global dungeon, history, visited_rooms
     for door in doors:
         if not door.opened:
             dist = ((player.x // TILE_SIZE - door.x) ** 2 +
                     (player.y // TILE_SIZE - door.y) ** 2) ** 0.5
             if dist <= 2:
                 door.open(player)
-                # If door is at dungeon edge or is the end door, generate new dungeon and move player
-                if getattr(door, 'is_end', False) or door.x == 0 or door.x == dungeon.width - 1 or door.y == 0 or door.y == dungeon.height - 1:
-                    dungeon, new_doors = generate_dungeon()
-                    # Move player to center of new start room
-                    if dungeon.rooms:
-                        start_room = dungeon.rooms[0]
-                        center_tile_x = (start_room.x // TILE_SIZE) + \
-                            (start_room.width // (2 * TILE_SIZE))
-                        center_tile_y = (start_room.y // TILE_SIZE) + \
-                            (start_room.height // (2 * TILE_SIZE))
-                        player.x = center_tile_x * TILE_SIZE
-                        player.y = center_tile_y * TILE_SIZE
-                    else:
-                        player.x = (WINDOW_WIDTH // 2 // TILE_SIZE) * TILE_SIZE
-                        player.y = (WINDOW_HEIGHT // 2 //
-                                    TILE_SIZE) * TILE_SIZE
-                    # Update doors in caller
-                    return new_doors
+                # Cache all rooms in this dungeon on entry
+                for room in dungeon.rooms:
+                    visited_rooms.append({
+                        'x': room.x, 'y': room.y,
+                        'width': room.width, 'height': room.height,
+                        'dungeon_id': len(history)
+                    })
+                # If backtracking (door already opened and history exists), pop previous dungeon
+                if hasattr(door, 'back_link') and door.back_link:
+                    prev = history.pop()
+                    dungeon, doors, player.x, player.y = prev
+                    return doors
+                # Otherwise, push current dungeon to history and generate new
+                history.append((dungeon, doors, player.x, player.y))
+                dungeon, new_doors = generate_dungeon()
+                # Link the new door for backtracking
+                for d in new_doors:
+                    if getattr(d, 'is_end', False) or d.x == 0 or d.x == dungeon.width - 1 or d.y == 0 or d.y == dungeon.height - 1:
+                        d.back_link = True
+                # Move player to center of new start room
+                if dungeon.rooms:
+                    start_room = dungeon.rooms[0]
+                    center_tile_x = (start_room.x // TILE_SIZE) + \
+                        (start_room.width // (2 * TILE_SIZE))
+                    center_tile_y = (start_room.y // TILE_SIZE) + \
+                        (start_room.height // (2 * TILE_SIZE))
+                    player.x = center_tile_x * TILE_SIZE
+                    player.y = center_tile_y * TILE_SIZE
+                else:
+                    player.x = (WINDOW_WIDTH // 2 // TILE_SIZE) * TILE_SIZE
+                    player.y = (WINDOW_HEIGHT // 2 // TILE_SIZE) * TILE_SIZE
+                return new_doors
     return doors
 
 
