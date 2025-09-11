@@ -22,7 +22,8 @@ def generate_dungeon():
     # Add random rooms to the dungeon, min size 6x6
     for _ in range(8):
         w, h = random.randint(6, 10), random.randint(6, 10)
-        x, y = random.randint(0, dungeon.width - w - 1), random.randint(0, dungeon.height - h - 1)
+        x, y = random.randint(0, dungeon.width - w -
+                              1), random.randint(0, dungeon.height - h - 1)
         dungeon.add_room(Room(x, y, w, h, TILE_SIZE))
     dungeon.connect_rooms()
     # Place doors at dungeon edges (for area transition)
@@ -40,8 +41,10 @@ def generate_dungeon():
     if dungeon.rooms:
         from collections import deque
         start_room = dungeon.rooms[0]
-        sx = (start_room.x // TILE_SIZE) + (start_room.width // (2 * TILE_SIZE))
-        sy = (start_room.y // TILE_SIZE) + (start_room.height // (2 * TILE_SIZE))
+        sx = (start_room.x // TILE_SIZE) + \
+            (start_room.width // (2 * TILE_SIZE))
+        sy = (start_room.y // TILE_SIZE) + \
+            (start_room.height // (2 * TILE_SIZE))
         visited = set()
         queue = deque([(sx, sy, 0)])
         farthest = (sx, sy, 0)
@@ -110,7 +113,8 @@ def interact_nearby_doors(player, doors):
     global dungeon
     for door in doors:
         if not door.opened:
-            dist = ((player.x // TILE_SIZE - door.x) ** 2 + (player.y // TILE_SIZE - door.y) ** 2) ** 0.5
+            dist = ((player.x // TILE_SIZE - door.x) ** 2 +
+                    (player.y // TILE_SIZE - door.y) ** 2) ** 0.5
             if dist <= 2:
                 door.open(player)
                 # If door is at dungeon edge or is the end door, generate new dungeon and move player
@@ -119,13 +123,16 @@ def interact_nearby_doors(player, doors):
                     # Move player to center of new start room
                     if dungeon.rooms:
                         start_room = dungeon.rooms[0]
-                        center_tile_x = (start_room.x // TILE_SIZE) + (start_room.width // (2 * TILE_SIZE))
-                        center_tile_y = (start_room.y // TILE_SIZE) + (start_room.height // (2 * TILE_SIZE))
+                        center_tile_x = (start_room.x // TILE_SIZE) + \
+                            (start_room.width // (2 * TILE_SIZE))
+                        center_tile_y = (start_room.y // TILE_SIZE) + \
+                            (start_room.height // (2 * TILE_SIZE))
                         player.x = center_tile_x * TILE_SIZE
                         player.y = center_tile_y * TILE_SIZE
                     else:
                         player.x = (WINDOW_WIDTH // 2 // TILE_SIZE) * TILE_SIZE
-                        player.y = (WINDOW_HEIGHT // 2 // TILE_SIZE) * TILE_SIZE
+                        player.y = (WINDOW_HEIGHT // 2 //
+                                    TILE_SIZE) * TILE_SIZE
                     # Update doors in caller
                     return new_doors
     return doors
