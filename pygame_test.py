@@ -35,40 +35,87 @@ def generate_dungeon(entry_door=None):
         y = random.randint(0, dungeon.height - h - 1)
         dungeon.add_room(Room(x, y, w, h, TILE_SIZE))
     dungeon.connect_rooms()
-    # Place up to 2 doors per edge, only at valid exits (walkable next to wall)
+    # Adjustable maximum doors per room
+    MAX_DOORS_PER_FLOOR = 5
+    all_door_candidates = []
     for room in dungeon.rooms:
         rx0 = room.x // TILE_SIZE
         ry0 = room.y // TILE_SIZE
         rx1 = (room.x + room.width) // TILE_SIZE
         ry1 = (room.y + room.height) // TILE_SIZE
         # Top edge
-        top_candidates = [x for x in range(rx0, rx1)
-                         if dungeon.grid[ry0][x] == 1 and ry0 > 0 and dungeon.grid[ry0 - 1][x] == 0]
-        for x in random.sample(top_candidates, min(2, len(top_candidates))):
-            d = Door(x, ry0, connected_rooms={room})
-            d.dungeon_context = dungeon
-            doors.append(d)
+        top_segments = []
+        seg = []
+        for x in range(rx0, rx1):
+            if dungeon.grid[ry0][x] == 1 and ry0 > 0 and dungeon.grid[ry0 - 1][x] == 0:
+                seg.append(x)
+            else:
+                if len(seg) >= 2:
+                    top_segments.append(seg)
+                seg = []
+        if len(seg) >= 2:
+            top_segments.append(seg)
+        for seg in top_segments:
+            cx = seg[len(seg) // 2]
+            all_door_candidates.append((cx, ry0, room))
         # Bottom edge
-        bot_candidates = [x for x in range(rx0, rx1)
-                         if dungeon.grid[ry1 - 1][x] == 1 and ry1 < dungeon.height and dungeon.grid[ry1][x] == 0]
-        for x in random.sample(bot_candidates, min(2, len(bot_candidates))):
-            d = Door(x, ry1 - 1, connected_rooms={room})
-            d.dungeon_context = dungeon
-            doors.append(d)
+        bot_segments = []
+        seg = []
+        for x in range(rx0, rx1):
+            if dungeon.grid[ry1 - 1][x] == 1 and ry1 < dungeon.height and dungeon.grid[ry1][x] == 0:
+                seg.append(x)
+            else:
+                if len(seg) >= 2:
+                    bot_segments.append(seg)
+                seg = []
+        if len(seg) >= 2:
+            bot_segments.append(seg)
+        for seg in bot_segments:
+            cx = seg[len(seg) // 2]
+            all_door_candidates.append((cx, ry1 - 1, room))
         # Left edge
-        left_candidates = [y for y in range(ry0, ry1)
-                           if dungeon.grid[y][rx0] == 1 and rx0 > 0 and dungeon.grid[y][rx0 - 1] == 0]
-        for y in random.sample(left_candidates, min(2, len(left_candidates))):
-            d = Door(rx0, y, connected_rooms={room})
-            d.dungeon_context = dungeon
-            doors.append(d)
+        left_segments = []
+        seg = []
+        for y in range(ry0, ry1):
+            if dungeon.grid[y][rx0] == 1 and rx0 > 0 and dungeon.grid[y][rx0 - 1] == 0:
+                seg.append(y)
+            else:
+                if len(seg) >= 2:
+                    left_segments.append(seg)
+                seg = []
+        if len(seg) >= 2:
+            left_segments.append(seg)
+        for seg in left_segments:
+            cy = seg[len(seg) // 2]
+            all_door_candidates.append((rx0, cy, room))
         # Right edge
-        right_candidates = [y for y in range(ry0, ry1)
-                            if dungeon.grid[y][rx1 - 1] == 1 and rx1 < dungeon.width and dungeon.grid[y][rx1] == 0]
-        for y in random.sample(right_candidates, min(2, len(right_candidates))):
-            d = Door(rx1 - 1, y, connected_rooms={room})
+        right_segments = []
+        seg = []
+        for y in range(ry0, ry1):
+            if dungeon.grid[y][rx1 - 1] == 1 and rx1 < dungeon.width and dungeon.grid[y][rx1] == 0:
+                seg.append(y)
+            else:
+                if len(seg) >= 2:
+                    right_segments.append(seg)
+                seg = []
+        if len(seg) >= 2:
+            right_segments.append(seg)
+        for seg in right_segments:
+            cy = seg[len(seg) // 2]
+            all_door_candidates.append((rx1 - 1, cy, room))
+    # Limit total doors per dungeon floor
+    if len(all_door_candidates) > MAX_DOORS_PER_FLOOR:
+        all_door_candidates = random.sample(
+            all_door_candidates, MAX_DOORS_PER_FLOOR)
+    # Create doors as shared objects between rooms
+    door_objects = {}
+    for x, y, room_ref in all_door_candidates:
+        key = (x, y)
+        if key not in door_objects:
+            d = Door(x, y, connected_rooms={room_ref})
             d.dungeon_context = dungeon
-            doors.append(d)
+            door_objects[key] = d
+        doors.append(door_objects[key])
     # Place a door at the farthest walkable tile from the start room
     if dungeon.rooms:
         from collections import deque
@@ -149,7 +196,10 @@ def draw_dungeon_with_camera(screen, dungeon, camera_x, camera_y):
 
 def draw_doors(screen, doors, camera_x, camera_y):
     for door in doors:
-        color = (200, 150, 50) if not door.opened else (100, 200, 100)
+        if door.opened:
+            color = (200, 50, 50)  # Red for interacted doors
+        else:
+            color = (200, 150, 50)  # Default color
         rect_x = door.x * TILE_SIZE - camera_x
         rect_y = door.y * TILE_SIZE - camera_y
         pygame.draw.rect(screen, color, pygame.Rect(
@@ -160,7 +210,8 @@ def interact_nearby_doors(player, doors):
     global dungeon, history, visited_rooms
     for door in doors:
         if not door.opened:
-            dist = ((player.x // TILE_SIZE - door.x) ** 2 + (player.y // TILE_SIZE - door.y) ** 2) ** 0.5
+            dist = ((player.x // TILE_SIZE - door.x) ** 2 +
+                    (player.y // TILE_SIZE - door.y) ** 2) ** 0.5
             if dist <= 2:
                 # Find which room the player is currently in
                 current_room = None
@@ -177,6 +228,7 @@ def interact_nearby_doors(player, doors):
                 # If door only knows one room, generate and connect a new room
                 if len(door.connected_rooms) == 1:
                     history.append((dungeon, doors, player.x, player.y))
+                    door.opened = True  # Mark the door as used (turns red)
                     dungeon_new, new_doors = generate_dungeon()
                     # Find the room in the new dungeon closest to the door's position
                     min_dist = float('inf')
@@ -194,32 +246,72 @@ def interact_nearby_doors(player, doors):
                             min_dist = d2
                             new_room = room
                     door.connected_rooms.add(new_room)
-                    # Place paired door at closest edge of new_room, only on walkable tile with valid exit
+                    # Place paired door at center of wall segment
                     edge_candidates = []
                     rx0 = new_room.x // TILE_SIZE
                     ry0 = new_room.y // TILE_SIZE
                     rx1 = (new_room.x + new_room.width) // TILE_SIZE
                     ry1 = (new_room.y + new_room.height) // TILE_SIZE
                     # Top edge
-                    top_candidates = [x for x in range(rx0, rx1)
-                                     if dungeon_new.grid[ry0][x] == 1 and ry0 > 0 and dungeon_new.grid[ry0 - 1][x] == 0]
-                    for x in top_candidates:
-                        edge_candidates.append((x, ry0))
+                    top_segments = []
+                    seg = []
+                    for x in range(rx0, rx1):
+                        if dungeon_new.grid[ry0][x] == 1 and ry0 > 0 and dungeon_new.grid[ry0 - 1][x] == 0:
+                            seg.append(x)
+                        else:
+                            if len(seg) >= 2:
+                                top_segments.append(seg)
+                            seg = []
+                    if len(seg) >= 2:
+                        top_segments.append(seg)
+                    for seg in top_segments:
+                        cx = seg[len(seg) // 2]
+                        edge_candidates.append((cx, ry0))
                     # Bottom edge
-                    bot_candidates = [x for x in range(rx0, rx1)
-                                     if dungeon_new.grid[ry1 - 1][x] == 1 and ry1 < dungeon_new.height and dungeon_new.grid[ry1][x] == 0]
-                    for x in bot_candidates:
-                        edge_candidates.append((x, ry1 - 1))
+                    bot_segments = []
+                    seg = []
+                    for x in range(rx0, rx1):
+                        if dungeon_new.grid[ry1 - 1][x] == 1 and ry1 < dungeon_new.height and dungeon_new.grid[ry1][x] == 0:
+                            seg.append(x)
+                        else:
+                            if len(seg) >= 2:
+                                bot_segments.append(seg)
+                            seg = []
+                    if len(seg) >= 2:
+                        bot_segments.append(seg)
+                    for seg in bot_segments:
+                        cx = seg[len(seg) // 2]
+                        edge_candidates.append((cx, ry1 - 1))
                     # Left edge
-                    left_candidates = [y for y in range(ry0, ry1)
-                                       if dungeon_new.grid[y][rx0] == 1 and rx0 > 0 and dungeon_new.grid[y][rx0 - 1] == 0]
-                    for y in left_candidates:
-                        edge_candidates.append((rx0, y))
+                    left_segments = []
+                    seg = []
+                    for y in range(ry0, ry1):
+                        if dungeon_new.grid[y][rx0] == 1 and rx0 > 0 and dungeon_new.grid[y][rx0 - 1] == 0:
+                            seg.append(y)
+                        else:
+                            if len(seg) >= 2:
+                                left_segments.append(seg)
+                            seg = []
+                    if len(seg) >= 2:
+                        left_segments.append(seg)
+                    for seg in left_segments:
+                        cy = seg[len(seg) // 2]
+                        edge_candidates.append((rx0, cy))
                     # Right edge
-                    right_candidates = [y for y in range(ry0, ry1)
-                                        if dungeon_new.grid[y][rx1 - 1] == 1 and rx1 < dungeon_new.width and dungeon_new.grid[y][rx1] == 0]
-                    for y in right_candidates:
-                        edge_candidates.append((rx1 - 1, y))
+                    right_segments = []
+                    seg = []
+                    for y in range(ry0, ry1):
+                        if dungeon_new.grid[y][rx1 - 1] == 1 and rx1 < dungeon_new.width and dungeon_new.grid[y][rx1] == 0:
+                            seg.append(y)
+                        else:
+                            if len(seg) >= 2:
+                                right_segments.append(seg)
+                            seg = []
+                    if len(seg) >= 2:
+                        right_segments.append(seg)
+                    for seg in right_segments:
+                        cy = seg[len(seg) // 2]
+                        edge_candidates.append((rx1 - 1, cy))
                     # Pick closest edge tile
                     min_edge_dist = float('inf')
                     best_edge = None
@@ -228,17 +320,60 @@ def interact_nearby_doors(player, doors):
                         if d2 < min_edge_dist:
                             min_edge_dist = d2
                             best_edge = (ex, ey)
+                    # Place player directly next to the paired door
                     if best_edge:
-                        paired_door = Door(best_edge[0], best_edge[1], connected_rooms={current_room, new_room})
-                        paired_door.dungeon_context = dungeon_new
-                        new_doors.append(paired_door)
+                        # Check if a paired door already exists at this location
+                        paired_key = (best_edge[0], best_edge[1])
+                        paired_door = None
+                        for d in new_doors:
+                            if d.x == best_edge[0] and d.y == best_edge[1]:
+                                paired_door = d
+                                break
+                        if not paired_door:
+                            paired_door = Door(best_edge[0], best_edge[1], connected_rooms={
+                                               current_room, new_room})
+                            paired_door.dungeon_context = dungeon_new
+                            new_doors.append(paired_door)
                         globals()['dungeon'] = dungeon_new
                         globals()['doors'] = new_doors
-                        paired_door.open(player, new_room)
+                        # Find a walkable tile adjacent to the paired door
+                        px, py = best_edge
+                        offsets = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+                        for dx, dy in offsets:
+                            nx, ny = px + dx, py + dy
+                            if 0 <= nx < dungeon_new.width and 0 <= ny < dungeon_new.height and dungeon_new.grid[ny][nx] == 1:
+                                player.x = nx * TILE_SIZE
+                                player.y = ny * TILE_SIZE
+                                break
+                        else:
+                            # Fallback: place at paired door
+                            player.x = px * TILE_SIZE
+                            player.y = py * TILE_SIZE
                         return new_doors
                 else:
-                    # Move to the other room
-                    door.open(player, current_room)
+                    # Always require a new dungeon floor for door traversal
+                    history.append((dungeon, doors, player.x, player.y))
+                    dungeon_new, new_doors = generate_dungeon()
+                    # Find a walkable tile inside the first room of the new dungeon
+                    new_room = dungeon_new.rooms[0]
+                    rx0 = new_room.x // TILE_SIZE
+                    ry0 = new_room.y // TILE_SIZE
+                    rx1 = (new_room.x + new_room.width) // TILE_SIZE
+                    ry1 = (new_room.y + new_room.height) // TILE_SIZE
+                    walkable_tile = None
+                    for y in range(ry0 + 1, ry1 - 1):
+                        for x in range(rx0 + 1, rx1 - 1):
+                            if dungeon_new.grid[y][x] == 1:
+                                walkable_tile = (x, y)
+                                break
+                        if walkable_tile:
+                            break
+                    globals()['dungeon'] = dungeon_new
+                    globals()['doors'] = new_doors
+                    if walkable_tile:
+                        player.x = walkable_tile[0] * TILE_SIZE
+                        player.y = walkable_tile[1] * TILE_SIZE
+                    return new_doors
 
 
 # MAIN GAME LOOP
