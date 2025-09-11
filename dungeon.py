@@ -4,12 +4,16 @@ from config import TILE_SIZE
 
 
 class Room:
+    """Represents a room in the dungeon."""
+
     def __init__(self, x, y, width, height, tile_size):
         self.x, self.y = x * tile_size, y * tile_size
         self.width, self.height = width * tile_size, height * tile_size
 
 
 class Dungeon:
+    """Represents the dungeon grid and room/corridor logic."""
+
     def __init__(self, width, height, tile_size):
         self.width = width
         self.height = height
@@ -20,6 +24,7 @@ class Dungeon:
         self.end_room = None
 
     def add_room(self, room):
+        """Add a room to the dungeon and mark its area as walkable."""
         self.rooms.append(room)
         for x in range(room.x // self.tile_size, (room.x + room.width) // self.tile_size):
             for y in range(room.y // self.tile_size, (room.y + room.height) // self.tile_size):
@@ -29,6 +34,7 @@ class Dungeon:
         self.end_room = room        # End room is the last room to be added
 
     def connect_rooms(self):
+        """Connect all rooms with corridors."""
         for i in range(len(self.rooms) - 1):
             room_a, room_b = self.rooms[i], self.rooms[i + 1]
 
@@ -43,6 +49,7 @@ class Dungeon:
                     self.grid[y][room_b.x // self.tile_size] = 1
 
     def print_dungeon(self):
+        """Print a text representation of the dungeon grid."""
         for y, row in enumerate(self.grid):
             for x, cell in enumerate(row):
                 if x == self.start_room.x and y == self.start_room.y:
@@ -54,6 +61,7 @@ class Dungeon:
             print()
 
     def draw(self, screen):
+        """Draw the dungeon grid to the screen."""
         for y, row in enumerate(self.grid):
             for x, cell in enumerate(row):
                 color = (255, 255, 255) if cell == 1 else (0, 0, 0)
