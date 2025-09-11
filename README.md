@@ -1,6 +1,8 @@
 # Mythic Depths
 
-A procedurally generated, tile-based dungeon crawler built with Python and Pygame.
+![Mythic Depths Logo](assets/logo.png)
+
+A dark, medieval high-fantasy roguelike adventure game. Procedurally generated, tile-based dungeon crawler built with Python and Pygame.
 
 ## Features
 
