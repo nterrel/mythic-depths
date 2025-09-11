@@ -11,25 +11,45 @@ A procedurally generated, tile-based dungeon crawler built with Python and Pygam
 - Interactable doors: Doors at dungeon edges and at the farthest point allow transitions to new dungeons.
 - Extensible architecture: Ready for future features like items, inventory, NPCs, and magic.
 
-## How to Play
+## Installation
 
-1. **Install dependencies**
+1. **Clone the repository**
 
    ```bash
+   git clone https://github.com/nterrel/mythic-depths.git
+   cd mythic-depths
+   ```
+
+2. **(Recommended) Create a virtual environment**
+
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
+
+3. **Install dependencies**
+
+   ```bash
+   pip install --upgrade pip
    pip install -r requirements.txt
    ```
 
-2. **Run the game**
+4. **Run the game**
 
    ```bash
    python pygame_test.py
    ```
 
-3. **Controls**
+5. **Troubleshooting**
 
-   - Move: WASD
-   - Interact: E (to open doors)
-   - Quit: Close the window
+   - If you see errors about missing packages, ensure your virtual environment is activated.
+   - If Pygame fails to initialize, make sure your Python version is 3.11+ and you have the latest Pygame.
+
+## Controls
+
+- Move: WASD
+- Interact: E (to open doors)
+- Quit: Close the window
 
 ## Project Structure
 
