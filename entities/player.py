@@ -1,5 +1,5 @@
 import pygame
-from inventory import Inventory
+from systems.inventory import Inventory
 
 
 class Player:

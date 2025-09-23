@@ -1,6 +1,6 @@
 import pygame
-from player import Player
-from inventory import Inventory
+from entities.player import Player
+from systems.inventory import Inventory
 from dungeon import Dungeon
 from config import TILE_SIZE
 

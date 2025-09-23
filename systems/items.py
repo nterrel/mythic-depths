@@ -1,5 +1,5 @@
-# Here is where you can define item attributes.
-# Example items:
+# Here is where you can implement item attributes from `items.json`
+
 class Item:
     """Base class for items."""
 

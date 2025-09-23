@@ -1,3 +1,5 @@
+import items
+
 class Inventory:
     """Manages the player's inventory of items."""
 

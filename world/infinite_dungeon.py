@@ -51,7 +51,7 @@ class InfiniteDungeon:
                         door_x = x + w + self.room_size
                         door_y = room_y * self.room_size + h // 2
                     self.corridors[(room_x, room_y, direction)] = corridor
-                    from interactables import Door
+                    from world.interactables import Door
                     self.doors.append(
                         Door(door_x // TILE_SIZE, door_y // TILE_SIZE))
         return self.rooms[(room_x, room_y)]
