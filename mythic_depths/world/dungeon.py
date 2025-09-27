@@ -117,8 +117,8 @@ if __name__ == "__main__":
     dungeon = Dungeon(30, 20, 20)
     for i in range(5):
         w, h = random.randint(3, 6), random.randint(3, 6)
-        x, y = random.randint(0, dungeon.width - w -
-                              1), random.randint(0, dungeon.height - h - 1)
+        x, y = random.randint(0, dungeon.width - w
+                              - 1), random.randint(0, dungeon.height - h - 1)
         metadata = {"type": "normal", "index": i}
         room = Room(x, y, w, h, 20, room_id=f"room_{i}", metadata=metadata)
         dungeon.add_room(room)

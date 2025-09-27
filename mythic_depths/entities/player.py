@@ -1,9 +1,21 @@
-import pygame
-from ..systems.inventory import Inventory
+from mythic_depths.config.config import TILE_SIZE
+from mythic_depths.systems.inventory import Inventory
 
 
 class Player:
-    """Represents the player character in the dungeon crawler game."""
+    """
+    Represents the player character in the dungeon crawler game.
+
+    Attributes:
+        x (int): X-coordinate of the player.
+        y (int): Y-coordinate of the player.
+        tile_size (int): Size of the player's tile.
+        speed (int): Movement speed of the player.
+        name (str): Name of the player.
+        health (int): Health points of the player.
+        strength (int): Strength attribute of the player.
+        inventory (Inventory): The player's inventory.
+    """
 
     def __init__(self, x, y,
                  name: str = 'Fella',
@@ -20,7 +32,14 @@ class Player:
         self.inventory = Inventory()
 
     def move(self, dx, dy, dungeon):
-        """Move the player by dx, dy if no collision with walls."""
+        """
+        Move the player by dx, dy if no collision with walls.
+
+        Args:
+            dx (int): Change in x-direction.
+            dy (int): Change in y-direction.
+            dungeon: The dungeon object to check for collisions.
+        """
         if dx != 0 or dy != 0:
             new_x = self.x + dx * self.speed
             new_y = self.y + dy * self.speed

@@ -1,11 +1,11 @@
 import time
 import pygame
 import random
-from .entities.player import Player
-from .systems.inventory import Inventory
-from .world.dungeon import Dungeon, Room
-from .config import TILE_SIZE
-from .world.interactables import Door
+from entities.player import Player
+from systems.inventory import Inventory
+from world.dungeon import Dungeon, Room
+from config import TILE_SIZE
+from world.interactables import Door
 
 pygame.init()
 WINDOW_WIDTH, WINDOW_HEIGHT = 800, 600
@@ -210,8 +210,8 @@ def interact_nearby_doors(player, doors):
     global dungeon, history, visited_rooms
     for door in doors:
         if not door.opened:
-            dist = ((player.x // TILE_SIZE - door.x) ** 2 +
-                    (player.y // TILE_SIZE - door.y) ** 2) ** 0.5
+            dist = ((player.x // TILE_SIZE - door.x) ** 2
+                    + (player.y // TILE_SIZE - door.y) ** 2) ** 0.5
             if dist <= 2:
                 # Find which room the player is currently in
                 current_room = None

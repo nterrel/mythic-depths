@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mythic-depths"
+version = "0.1.0"
+description = "A dungeon crawler game built with Python and Pygame."
+authors = [{name = "Nick Terrel"}]
+license = "MIT"
+dependencies = [
+    "pygame",
+    "pytest",
+]
+
+[tool.setuptools]
+packages = ["entities", "systems", "world"]
