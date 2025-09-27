@@ -1,7 +1,7 @@
 # This contains the general entity class that all entities will inherit from.
 import pygame
-from config import TILE_SIZE
-from systems.inventory import Inventory
+from ..config import TILE_SIZE
+from ..systems.inventory import Inventory
 
 class Entity(pygame.sprite.Sprite):
     def __init__(self, x, y, tile_size=TILE_SIZE):

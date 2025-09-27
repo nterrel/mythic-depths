@@ -1,11 +1,11 @@
 import time
 import pygame
 import random
-from entities.player import Player
-from systems.inventory import Inventory
-from dungeon import Dungeon, Room
-from config import TILE_SIZE
-from world.interactables import Door
+from .entities.player import Player
+from .systems.inventory import Inventory
+from .world.dungeon import Dungeon, Room
+from .config import TILE_SIZE
+from .world.interactables import Door
 
 pygame.init()
 WINDOW_WIDTH, WINDOW_HEIGHT = 800, 600

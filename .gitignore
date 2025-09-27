@@ -1,5 +1,7 @@
 .vscode/
 __pycache__/
 Examples/
-
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
 

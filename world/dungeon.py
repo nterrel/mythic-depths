@@ -1,6 +1,6 @@
 import pygame
 import random
-from config import TILE_SIZE
+from ..config import TILE_SIZE
 
 
 class Room:
