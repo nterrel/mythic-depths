@@ -18,8 +18,19 @@ def main():
     # Initialize game state
     history = []
     visited_rooms = []
-    dungeon, doors = generate_dungeon()
-    player = Player(100, 100, TILE_SIZE)
+    dungeon, doors, (player_start_x, player_start_y) = generate_dungeon()
+
+    # Ensure player starts at the center of the first walkable tile in the starting room
+    if dungeon.rooms:
+        start_room = dungeon.rooms[0]
+        player_start_x = (start_room.x // TILE_SIZE) + (start_room.width // (2 * TILE_SIZE))
+        player_start_y = (start_room.y // TILE_SIZE) + (start_room.height // (2 * TILE_SIZE))
+        player = Player(player_start_x * TILE_SIZE, player_start_y * TILE_SIZE, TILE_SIZE)
+    else:
+        player = Player(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2, TILE_SIZE)
+
+    MOVE_DELAY = 5  # ms between tile moves
+    last_move_time = pygame.time.get_ticks()
 
     while running:
         for event in pygame.event.get():
@@ -27,7 +38,7 @@ def main():
                 running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_e:
-                    result = interact_nearby_doors(player, doors)
+                    result = interact_nearby_doors(player, doors, dungeon)
                     if result:
                         dungeon, doors = result
 
@@ -42,13 +53,17 @@ def main():
         if keys[pygame.K_s]:
             dy = 1
 
+        current_time = pygame.time.get_ticks()
+        if current_time - last_move_time >= MOVE_DELAY:
+            player.move(dx, dy, dungeon)
+            last_move_time = current_time
+
         camera_x = player.x - WINDOW_WIDTH // 2
         camera_y = player.y - WINDOW_HEIGHT // 2
 
         screen.fill((0, 0, 0))
         draw_dungeon_with_camera(screen, dungeon, camera_x, camera_y)
         draw_doors(screen, doors, camera_x, camera_y)
-        player.move(dx, dy, dungeon)
         pygame.draw.rect(screen, (50, 200, 200), pygame.Rect(
             player.x - camera_x, player.y - camera_y, TILE_SIZE, TILE_SIZE))
         pygame.display.update()

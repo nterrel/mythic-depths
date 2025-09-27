@@ -65,25 +65,47 @@ class Dungeon:
     def add_room(self, room):
         """Add a room to the dungeon and mark its area as walkable."""
         self.rooms.append(room)
+        print(f"Adding room: x={room.x}, y={room.y}, width={room.width}, height={room.height}")
         for x in range(room.x // self.tile_size, (room.x + room.width) // self.tile_size):
             for y in range(room.y // self.tile_size, (room.y + room.height) // self.tile_size):
                 self.grid[y][x] = 1     # Mark room area on grid
+                print(f"Marking grid as walkable: x={x}, y={y}")
         if not self.start_room:
             self.start_room = room  # First room is start
         self.end_room = room        # Last room is end
 
     def connect_rooms(self):
-        """Connect all rooms with corridors."""
+        """Connect all rooms with corridors and ensure proper grid marking."""
         for i in range(len(self.rooms) - 1):
             room_a, room_b = self.rooms[i], self.rooms[i + 1]
+            print(f"Connecting rooms: Room A at ({room_a.x}, {room_a.y}), Room B at ({room_b.x}, {room_b.y})")
             # Connect rooms horizontally
             for x in range(min(room_a.x, room_b.x) // self.tile_size, (max(room_a.x, room_b.x) + self.tile_size) // self.tile_size):
-                if x < self.width:
+                if 0 <= x < self.width:
                     self.grid[room_a.y // self.tile_size][x] = 1
+                    print(f"Marking horizontal corridor: x={x}, y={room_a.y // self.tile_size}")
             # Connect rooms vertically
             for y in range(min(room_a.y, room_b.y) // self.tile_size, (max(room_a.y, room_b.y) + self.tile_size) // self.tile_size):
-                if y < self.height:
+                if 0 <= y < self.height:
                     self.grid[y][room_b.x // self.tile_size] = 1
+                    print(f"Marking vertical corridor: x={room_b.x // self.tile_size}, y={y}")
+
+    def add_door_connections(self):
+        """Assign connected rooms to doors."""
+        for room in self.rooms:
+            for door in room.doors:
+                for other_room in self.rooms:
+                    if room != other_room and self.is_door_adjacent_to_room(door, other_room):
+                        door.connected_rooms.add(room)
+                        door.connected_rooms.add(other_room)
+
+    def is_door_adjacent_to_room(self, door, room):
+        """Check if a door is adjacent to a room."""
+        rx0 = room.x // self.tile_size
+        ry0 = room.y // self.tile_size
+        rx1 = (room.x + room.width) // self.tile_size
+        ry1 = (room.y + room.height) // self.tile_size
+        return rx0 <= door.x < rx1 and ry0 <= door.y < ry1
 
     def print_dungeon(self):
         """Print a text representation of the dungeon grid."""
