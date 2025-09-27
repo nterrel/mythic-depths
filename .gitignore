@@ -4,4 +4,4 @@ Examples/
 .pytest_cache/
 .ipynb_checkpoints/
 .venv/
-
+mythic_depths.egg-info/
