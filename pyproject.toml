@@ -13,5 +13,8 @@ dependencies = [
     "pytest",
 ]
 
+[project.scripts]
+myth = "mythic_depths.main:main"
+
 [tool.setuptools]
-packages = ["entities", "systems", "world"]
+packages = ["mythic_depths"]

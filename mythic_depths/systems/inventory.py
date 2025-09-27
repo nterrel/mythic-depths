@@ -1,6 +1,7 @@
 from mythic_depths.config.config import TILE_SIZE
 from mythic_depths.systems import items
 
+
 class Inventory:
     """
     Manages the player's inventory of items.

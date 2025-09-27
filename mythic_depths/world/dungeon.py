@@ -1,6 +1,6 @@
 import pygame
 import random
-from ..config import TILE_SIZE
+from mythic_depths.config.config import TILE_SIZE
 
 
 class Room:
