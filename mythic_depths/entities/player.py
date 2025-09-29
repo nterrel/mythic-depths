@@ -12,8 +12,9 @@ class Player:
         tile_size (int): Size of the player's tile.
         speed (int): Movement speed of the player.
         name (str): Name of the player.
-        health (int): Health points of the player.
+        health (int): Maximum health points of the player.
         strength (int): Strength attribute of the player.
+        mana (int): Maximum mana points of the player.
         inventory (Inventory): The player's inventory.
     """
 
@@ -21,15 +22,39 @@ class Player:
                  name: str = 'Fella',
                  health: int = 100,
                  strength: int = 10,
+                 mana: int = 50,
                  tile_size: int = 20):
         self.x = x
         self.y = y
         self.tile_size = tile_size
         self.speed = self.tile_size // 4
         self.name = name
-        self.health = health
+        self.max_health = max(0, health)
+        self.health = self.max_health
         self.strength = strength
+        self.max_mana = max(0, mana)
+        self.mana = self.max_mana
         self.inventory = Inventory()
+
+    # ------------------------------------------------------------------
+    # Basic stat helpers
+    def restore_health(self, amount: int) -> int:
+        """Restore up to ``amount`` health and return the amount healed."""
+
+        if amount <= 0 or self.max_health == 0:
+            return 0
+        previous = self.health
+        self.health = min(self.max_health, self.health + amount)
+        return self.health - previous
+
+    def restore_mana(self, amount: int) -> int:
+        """Restore up to ``amount`` mana and return the amount recovered."""
+
+        if amount <= 0 or self.max_mana == 0:
+            return 0
+        previous = self.mana
+        self.mana = min(self.max_mana, self.mana + amount)
+        return self.mana - previous
 
     def move(self, dx, dy, dungeon):
         """
