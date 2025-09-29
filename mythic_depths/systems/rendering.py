@@ -1,23 +1,30 @@
 import pygame
+from mythic_depths.config.config import TILE_SIZE
 
-def draw_dungeon_with_camera(screen, dungeon, camera_x, camera_y):
-    for y, row in enumerate(dungeon.grid):
-        for x, cell in enumerate(row):
-            color = (255, 255, 255) if cell == 1 else (0, 0, 0)  # Black for walls
-            rect_x = x * dungeon.tile_size - camera_x
-            rect_y = y * dungeon.tile_size - camera_y
-            if 0 <= rect_x < 800 and 0 <= rect_y < 600:
-                pygame.draw.rect(screen, color, pygame.Rect(
-                    rect_x, rect_y, dungeon.tile_size, dungeon.tile_size))
-                # Detailed logging for rendering cells
-                print(f"Rendering dungeon cell at ({x}, {y}): {'Walkable' if cell == 1 else 'Wall'}")
 
-def draw_doors(screen, doors, camera_x, camera_y):
+def draw_dungeon_with_camera(screen, dungeon, camera):
+    for y in range(dungeon.height):
+        for x in range(dungeon.width):
+            tile = dungeon.grid[y][x]
+            screen_x = (x - camera.x) * TILE_SIZE
+            screen_y = (y - camera.y) * TILE_SIZE
+
+            if tile == 1:  # Floor
+                pygame.draw.rect(screen, (200, 200, 200), (screen_x, screen_y, TILE_SIZE, TILE_SIZE))
+            elif tile == 0:  # Wall
+                pygame.draw.rect(screen, (0, 0, 0), (screen_x, screen_y, TILE_SIZE, TILE_SIZE))
+
+
+def draw_doors(screen, doors, camera):
     for door in doors:
-        color = (200, 50, 50) if door.opened else (200, 150, 50)
-        rect_x = door.x * 32 - camera_x
-        rect_y = door.y * 32 - camera_y
-        pygame.draw.rect(screen, color, pygame.Rect(
-            rect_x, rect_y, 32, 32))
-        # Detailed logging for rendering doors
-        print(f"Rendering door at ({door.x}, {door.y}): {'Opened' if door.opened else 'Closed'}")
+        screen_x = (door.x - camera.x) * TILE_SIZE
+        screen_y = (door.y - camera.y) * TILE_SIZE
+
+        if door.is_end:
+            color = (0, 255, 0)  # Green for end door
+        elif door.paired_door:
+            color = (255, 0, 0)  # Red for interacted doors
+        else:
+            color = (0, 0, 255)  # Blue for unexplored doors
+
+        pygame.draw.rect(screen, color, (screen_x, screen_y, TILE_SIZE, TILE_SIZE))

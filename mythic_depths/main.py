@@ -6,6 +6,7 @@ from mythic_depths.systems.world_generation import generate_dungeon
 from mythic_depths.systems.rendering import draw_dungeon_with_camera, draw_doors
 from mythic_depths.systems.interactions import interact_nearby_doors
 
+
 def main():
     pygame.init()
     WINDOW_WIDTH, WINDOW_HEIGHT = 800, 600
@@ -70,6 +71,7 @@ def main():
         clock.tick(60)
 
     pygame.quit()
+
 
 if __name__ == "__main__":
     main()

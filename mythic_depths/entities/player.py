@@ -40,8 +40,9 @@ class Player:
             dy (int): Change in y-direction.
             dungeon: The dungeon object to check for collisions.
         """
-        print(f"Attempting to move: dx={dx}, dy={dy}")
-        print(f"Current position: x={self.x}, y={self.y}")
+        # Debug print to trace movement
+        print(f"Attempting to move player: dx={dx}, dy={dy}")
+        print(f"Player position before move: x={self.x}, y={self.y}")
         new_x = self.x + dx * self.speed
         new_y = self.y + dy * self.speed
         print(f"New position: x={new_x}, y={new_y}")
@@ -148,4 +149,22 @@ class Player:
                             break
                 if can_move_y:
                     self.y = test_y
+        # Simplify collision detection for static dungeons
+        if not hasattr(dungeon, 'get_room'):
+            if 0 <= new_x // self.tile_size < dungeon.width and 0 <= new_y // self.tile_size < dungeon.height:
+                if dungeon.grid[new_y // self.tile_size][new_x // self.tile_size] == 1:
+                    self.x = new_x
+                    self.y = new_y
+        # Debug print to show final position after move attempt
+        print(f"Player position after move: x={self.x}, y={self.y}")
+
+
+def initialize_player(dungeon):
+    if dungeon.rooms:
+        first_room = dungeon.rooms[0]
+        center_x = (first_room.x // TILE_SIZE) + (first_room.width // (2 * TILE_SIZE))
+        center_y = (first_room.y // TILE_SIZE) + (first_room.height // (2 * TILE_SIZE))
+        return Player(center_x, center_y)
+    return Player(0, 0)  # Default to (0, 0) if no rooms exist
+
 # EOF
